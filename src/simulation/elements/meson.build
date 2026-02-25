@@ -195,6 +195,11 @@ simulation_elem_names = [
 	'RSSS',
 	'BASE',
 	'SEED',
+	'MDST',
+	'TRIT',
+	'SLVR',
+	'O3',
+	'HFNM'
 ]
 
 simulation_elem_src = []
@@ -208,3 +213,4 @@ foreach elem_name : simulation_elem_names
 	elem_id = elem_id + 1
 endforeach
 simulation_files += files(simulation_elem_src)
+
