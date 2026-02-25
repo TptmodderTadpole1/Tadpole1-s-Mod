@@ -102,6 +102,13 @@ static int update(UPDATE_FUNC_ARGS)
 					sim->kill_part(ID(r));
 				}
 				break;
+			case PT_TRIT:
+				if (sim->rng.chance(pressureFactor + 1 + (parts[ID(r)].life/100), 1000))
+				{
+					DeutExplosion(sim, parts[ID(r)].life, x+rx, y+ry, restrict_flt(parts[ID(r)].temp + parts[ID(r)].life*5000.0f, MIN_TEMP, MAX_TEMP), PT_NEUT);
+					sim->kill_part(ID(r));
+				}
+				break;
 			case PT_GUNP:
 				if (sim->rng.chance(3, 200))
 					sim->part_change_type(ID(r),x+rx,y+ry,PT_DUST);
@@ -222,6 +229,11 @@ static int update(UPDATE_FUNC_ARGS)
 					}
 				}
 				break;
+			case PT_HFNM:{
+					sim->create_part(-1, x+rx, y+ry, PT_SPRK);
+					sim->kill_part(i);
+					return 1;
+				}
 			default:
 				break;
 			}
