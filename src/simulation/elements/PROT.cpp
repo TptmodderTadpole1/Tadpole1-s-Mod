@@ -82,6 +82,13 @@ static int update(UPDATE_FUNC_ARGS)
 			sim->kill_part(uID);
 		}
 		break;
+	case PT_TRIT:
+		if (sim->rng.chance(-((int)sim->pv[y / CELL][x / CELL] - 4) + (parts[uID].life / 100), 200))
+		{
+			DeutImplosion(sim, parts[uID].life, x, y, restrict_flt(parts[uID].temp + parts[uID].life * 500, MIN_TEMP, MAX_TEMP), PT_PROT);
+			sim->kill_part(uID);
+		}
+		break;
 	case PT_LCRY:
 		//Powered LCRY reaction: PROT->PHOT
 		if (parts[uID].life > 5 && sim->rng.chance(1, 10))
