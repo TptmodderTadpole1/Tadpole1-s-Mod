@@ -1,0 +1,112 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install Meson & Ninja
+        run: |
+          python3 -m pip install --user meson ninja
+          echo "::add-path::${HOME}/.local/bin"
+      - name: Configure and build
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          meson setup build-linux --buildtype=release -Dstatic=prebuilt -Dlua=none -Dhttp=false
+          meson compile -C build-linux -v
+      - name: Package
+        run: |
+          mkdir -p artifacts
+          cp build-linux/powder artifacts/powder-linux-x86_64
+          tar -C artifacts -czf release-linux.tar.gz powder-linux-x86_64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-release
+          path: artifacts/release-linux.tar.gz
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install Meson & Ninja
+        run: |
+          python -m pip install --user meson ninja
+          echo "%USERPROFILE%\\.local\\bin" >> $GITHUB_PATH
+      - name: Configure and build
+        shell: bash
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          meson setup build-win --buildtype=release -Dstatic=prebuilt -Dlua=none -Dhttp=false
+          meson compile -C build-win -v
+      - name: Package
+        run: |
+          mkdir -p artifacts
+          cp build-win/powder.exe artifacts/powder-windows-x86_64.exe || true
+          powershell -c "Compress-Archive -Path artifacts/* -DestinationPath release-windows.zip"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: release-windows.zip
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - name: Install Meson & Ninja
+        run: |
+          python3 -m pip install --user meson ninja
+          echo "::add-path::${HOME}/.local/bin"
+      - name: Configure and build
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          meson setup build-mac --buildtype=release -Dstatic=prebuilt -Dlua=none -Dhttp=false
+          meson compile -C build-mac -v
+      - name: Package
+        run: |
+          mkdir -p artifacts
+          cp build-mac/powder artifacts/powder-macos-x86_64 || true
+          tar -C artifacts -czf release-macos.tar.gz powder-macos-x86_64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-release
+          path: artifacts/release-macos.tar.gz
+
+  create-release:
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: downloaded
+      - name: Create GitHub Release and upload assets
+        uses: softprops/action-gh-release@v1
+        id: create-release
+        with:
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload release assets (linux)
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create-release.outputs.upload_url }}
+          asset_path: downloaded/release-linux.tar.gz
+          asset_name: powder-linux.tar.gz
+          asset_content_type: application/gzip
