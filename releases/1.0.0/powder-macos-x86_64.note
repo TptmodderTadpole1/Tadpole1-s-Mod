@@ -1,1 +1,0 @@
-macOS build not possible in this Linux environment due to lack of Apple linker/SDK; needs a macOS host or proper cross toolchain.
