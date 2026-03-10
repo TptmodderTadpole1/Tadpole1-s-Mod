@@ -2,15 +2,9 @@ name: build
 
 on:
   push:
-    branches:
-      - '*'
-    tags:
-      - 'v*.*'
-      - 'snapshot-*'
-      - 'tptlibsdev-*'
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - '*'
+    branches: [ "main" ]
 
 jobs:
   prepare:
