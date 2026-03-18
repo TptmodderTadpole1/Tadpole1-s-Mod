@@ -184,7 +184,14 @@ static int update(UPDATE_FUNC_ARGS)
 					case PT_SMKE: // SMKE + <= 122 C -> DUST
 						if (parts[ID(r)].temp <= 122.0f + 273.15f)
 						{
-							sim->part_change_type(ID(r), x + rx, y + ry, PT_INSL);
+							sim->part_change_type(ID(r), x + rx, y + ry, PT_DUST);
+						}
+						break;
+					}
+					case PT_BCOL: // BCOL + >= 257 pressure -> DMND
+						if (pmap[y + ry][x + rx] <= 257.0f )
+						{
+							sim->part_change_type(ID(r), x + rx, y + ry, PT_DMND);
 						}
 						break;
 					}
