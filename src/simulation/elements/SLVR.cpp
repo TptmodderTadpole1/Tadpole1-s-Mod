@@ -188,12 +188,7 @@ static int update(UPDATE_FUNC_ARGS)
 						}
 						break;
 					}
-					case PT_BCOL: // BCOL + >= 257 pressure -> DMND
-						if (pmap[y + ry][x + rx] <= 257.0f )
-						{
-							sim->part_change_type(ID(r), x + rx, y + ry, PT_DMND);
-						}
-						break;
+					
 					}
 				}
 			}
