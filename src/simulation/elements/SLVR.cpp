@@ -188,8 +188,6 @@ static int update(UPDATE_FUNC_ARGS)
 						}
 						break;
 					}
-					
-					}
 				}
 			}
 		}
