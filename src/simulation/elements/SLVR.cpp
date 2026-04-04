@@ -187,6 +187,10 @@ static int update(UPDATE_FUNC_ARGS)
 							sim->part_change_type(ID(r), x + rx, y + ry, PT_DUST);
 						}
 						break;
+					case PT_BCOL: // BCOL + >= 257 pressure -> DMND
+						sim->part_change_type(ID(r), x + rx, y + ry, PT_DMND);
+						parts[ID(r)].life=0; 
+						break;
 					}
 				}
 			}
@@ -204,7 +208,6 @@ static int update(UPDATE_FUNC_ARGS)
 	{
 		dust_reactions(dust1_id, UPDATE_FUNC_SUBCALL_ARGS);
 	}
-
 	return 0;
 }
 
